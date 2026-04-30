@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # NYC TLC End-to-End Data Platform
 
 ## Project Overview
@@ -68,3 +69,7 @@ Build a production-like data platform end-to-end for analytics and BI.
 
 Youssef Wael
 Data Analyst / ML & Data Engineering Enthusiast
+=======
+# NYC_TLC_Data_Platform
+NYC Taxi Data Engineering pipeline using Python &amp; PySpark implementing Medallion Architecture (Bronze, Silver, Gold). Handles large-scale parquet ingestion, schema inconsistencies, and builds analytics-ready datasets for BI and warehousing.
+>>>>>>> f352f1987a386f8bbd0748da5317ee7f2788dc14
