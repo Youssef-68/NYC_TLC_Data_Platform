@@ -1,12 +1,11 @@
 from pyspark.sql.functions import col, input_file_name, lit
 from config.config import BRONZE_DIR, SILVER_DIR
 from processing.spark_session import get_spark
-
+from pyspark.sql import functions as F
 
 def read_bronze(spark):
 
     # Read bronze layer
-
     df = spark.read.parquet(BRONZE_DIR.as_posix())
     print("Bronze schema:")
     df.printSchema()
@@ -18,8 +17,6 @@ def read_bronze(spark):
 def apply_schema(df):
 
     # Force consistent schema across all datasets (resolve INT/BIGINT issues)
-
-
     if "VendorID" in df.columns:
         df = df.withColumn("VendorID", col("VendorID").cast("int"))
 
@@ -38,17 +35,37 @@ def apply_schema(df):
     return df
 
 
+
+
 def transform_silver(df):
-    
-    # Clean + standardize + enrich data
 
     df = apply_schema(df)
     df = df.withColumn("source_file", input_file_name())
 
-    # Stable dataset label (avoid fragile regex)
-    df = df.withColumn("dataset", lit("nyc_tlc"))
+    # unify datetime columns
+    df = df.withColumn(
+        "pickup_datetime",
+        F.coalesce(
+            col("tpep_pickup_datetime"),
+            col("lpep_pickup_datetime")
+        )
+    )
 
-    # Data quality filters
+    df = df.withColumn(
+        "dropoff_datetime",
+        F.coalesce(
+            col("tpep_dropoff_datetime"),
+            col("lpep_dropoff_datetime")
+        )
+    )
+
+    # dataset label
+    df = df.withColumn(
+    "dataset",
+    F.regexp_extract(input_file_name(), r"(yellow|green)", 1)
+    )
+
+    # filters
     df = df.filter(
         (col("trip_distance") > 0) &
         (col("fare_amount") > 0)
@@ -63,7 +80,7 @@ def write_silver(df):
     output_path = SILVER_DIR.as_posix()
 
     df.write \
-        .mode("overwrite") \
+        .mode("append") \
         .partitionBy("dataset") \
         .parquet(output_path)
 

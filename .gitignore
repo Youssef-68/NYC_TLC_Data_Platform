@@ -1,9 +1,7 @@
+de_env/
 __pycache__/
 *.pyc
 logs/
-data/raw/
-data/bronze/
-data/silver/
-data/gold/
+data/
 .env
-
+.vscode/

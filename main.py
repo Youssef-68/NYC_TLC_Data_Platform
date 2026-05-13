@@ -1,37 +1,28 @@
 from config.logging_config import setup_logging
-
 from src.ingestion.ingestion import run_ingestion
 from src.processing.bronze import run_bronze
 from src.processing.silver import run_silver
 
-
 def run_pipeline():
     logger = setup_logging()
 
-    logger.info("Starting NYC TLC Data Pipeline")
+    try:
+        logger.info("PIPELINE STARTED")
 
-    # 1. INGESTION
-    logger.info("Step 1: Data Ingestion started")
-    run_ingestion()
+        logger.info("INGESTION")
+        run_ingestion()
 
-    # 2. RAW
-    logger.info("Step 2: Raw Layer stored")
+        logger.info("BRONZE")
+        run_bronze()
 
-    # 3. BRONZE
-    logger.info("Step 3: Bronze transformation")
-    run_bronze()
+        logger.info("SILVER")
+        run_silver()
 
-    # 4. SILVER
-    logger.info("Step 4: Silver clean dataset")
-    run_silver()
+        logger.info("PIPELINE COMPLETED SUCCESSFULLY")
 
-    # 5. DBT (future)
-    logger.info("Step 5: DBT modeling (star schema)")
-
-    # 6. GOLD (future)
-    logger.info("Step 6: Gold analytics tables")
-
-    logger.info("Pipeline completed successfully")
+    except Exception as e:
+        logger.error(f"PIPELINE FAILED: {e}")
+        raise
 
 
 if __name__ == "__main__":
