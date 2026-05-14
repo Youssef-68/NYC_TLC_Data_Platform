@@ -1,7 +1,7 @@
-de_env/
+.vscode/
 __pycache__/
 *.pyc
+.env
+de_env/
 logs/
 data/
-.env
-.vscode/
